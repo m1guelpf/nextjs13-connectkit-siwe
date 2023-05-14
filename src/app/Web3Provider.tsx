@@ -20,7 +20,7 @@ const client = createClient(
 
 const siweConfig = {
 	getNonce: async () => {
-		const res = await fetch(`/login/siwe`, { method: "PUT" });
+		const res = await fetch(`/siwe`, { method: "PUT" });
 		if (!res.ok) throw new Error("Failed to fetch SIWE nonce");
 
 		return res.text();
@@ -37,21 +37,20 @@ const siweConfig = {
 		}).prepareMessage();
 	},
 	verifyMessage: ({ message, signature }) => {
-		return fetch(`/login/siwe`, {
+		return fetch(`/siwe`, {
 			method: "POST",
 			body: JSON.stringify({ message, signature }),
 			headers: { "Content-Type": "application/json" },
 		}).then((res) => res.ok);
 	},
 	getSession: async () => {
-		const res = await fetch(`/login/siwe`);
+		const res = await fetch(`/siwe`);
 		if (!res.ok) throw new Error("Failed to fetch SIWE session");
 
 		const { address, chainId } = await res.json();
 		return address && chainId ? { address, chainId } : null;
 	},
-	signOut: () =>
-		fetch(`/login/siwe`, { method: "DELETE" }).then((res) => res.ok),
+	signOut: () => fetch(`/siwe`, { method: "DELETE" }).then((res) => res.ok),
 } satisfies SIWEConfig;
 
 const Web3Provider: FC<PropsWithChildren<{}>> = ({ children }) => (
