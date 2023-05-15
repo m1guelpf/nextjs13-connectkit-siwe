@@ -1,4 +1,5 @@
 import Session from "@/lib/session";
+import { tap } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 import { SiweErrorType, SiweMessage, generateNonce } from "siwe";
 
@@ -12,7 +13,7 @@ export const PUT = async (req: NextRequest): Promise<NextResponse> => {
 	const session = await Session.fromRequest(req);
 	if (!session?.nonce) session.nonce = generateNonce();
 
-	return new NextResponse(session.nonce, { headers: await session.persist() });
+	return tap(new NextResponse(session.nonce), (res) => session.persist(res));
 };
 
 export const POST = async (req: NextRequest) => {
@@ -26,8 +27,11 @@ export const POST = async (req: NextRequest) => {
 			nonce: session.nonce,
 		});
 
-		if (fields.nonce !== session.nonce)
-			return new NextResponse("Invalid nonce.", { status: 422 });
+		if (fields.nonce !== session.nonce) {
+			return tap(new NextResponse("Invalid nonce.", { status: 422 }), (res) =>
+				session.clear(res)
+			);
+		}
 
 		session.address = fields.address;
 		session.chainId = fields.chainId;
@@ -35,19 +39,22 @@ export const POST = async (req: NextRequest) => {
 		switch (error) {
 			case SiweErrorType.INVALID_NONCE:
 			case SiweErrorType.INVALID_SIGNATURE:
-				return new NextResponse(String(error), { status: 422 });
+				return tap(new NextResponse(String(error), { status: 422 }), (res) =>
+					session.clear(res)
+				);
 
 			default:
-				return new NextResponse(String(error), { status: 400 });
+				return tap(new NextResponse(String(error), { status: 400 }), (res) =>
+					session.clear(res)
+				);
 		}
 	}
 
-	return new NextResponse("", { headers: await session.persist() });
+	return tap(new NextResponse(""), (res) => session.persist(res));
 };
 
 export const DELETE = async (req: NextRequest) => {
 	const session = await Session.fromRequest(req);
 
-	session.clear();
-	return new NextResponse("", { headers: await session.persist() });
+	return tap(new NextResponse(""), (res) => session.clear(res));
 };

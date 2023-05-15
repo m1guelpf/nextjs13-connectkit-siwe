@@ -1,5 +1,5 @@
 import { COOKIE_NAME } from "./consts";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { sealData, unsealData } from "iron-session";
 
 if (!process.env.SESSION_SECRET) {
@@ -37,24 +37,27 @@ class Session {
 		);
 	}
 
-	clear(): void {
+	clear(res: NextResponse): Promise<void> {
 		this.nonce = undefined;
 		this.chainId = undefined;
 		this.address = undefined;
+
+		return this.persist(res);
 	}
 
 	toJSON(): ISession {
 		return { nonce: this.nonce, address: this.address, chainId: this.chainId };
 	}
 
-	async persist(): Promise<HeadersInit> {
-		console.log(this.toJSON());
-		return {
-			"Set-Cookie": `${COOKIE_NAME}=${await sealData(
-				this.toJSON(),
-				SESSION_OPTIONS
-			)}`,
-		};
+	async persist(res: NextResponse): Promise<void> {
+		res.cookies.set(
+			COOKIE_NAME,
+			await sealData(this.toJSON(), SESSION_OPTIONS),
+			{
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+			}
+		);
 	}
 }
 
