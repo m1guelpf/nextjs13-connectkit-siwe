@@ -3,18 +3,19 @@
 import { SiweMessage } from "siwe";
 import { APP_NAME } from "@/lib/consts";
 import { FC, PropsWithChildren } from "react";
-import { WagmiConfig, createClient } from "wagmi";
+import { WagmiConfig, createConfig } from "wagmi";
 import {
 	ConnectKitProvider,
 	SIWEConfig,
 	SIWEProvider,
-	getDefaultClient,
+	getDefaultConfig,
 } from "connectkit";
 
-const client = createClient(
-	getDefaultClient({
+const config = createConfig(
+	getDefaultConfig({
 		appName: APP_NAME,
 		infuraId: process.env.NEXT_PUBLIC_INFURA_ID,
+		walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
 	})
 );
 
@@ -54,7 +55,7 @@ const siweConfig = {
 } satisfies SIWEConfig;
 
 const Web3Provider: FC<PropsWithChildren<{}>> = ({ children }) => (
-	<WagmiConfig client={client}>
+	<WagmiConfig config={config}>
 		<SIWEProvider {...siweConfig}>
 			<ConnectKitProvider>{children}</ConnectKitProvider>
 		</SIWEProvider>
