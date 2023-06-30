@@ -6,7 +6,9 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint"
+		"lint": "next lint",
+		"format": "prettier --write .",
+		"format:check": "prettier --check ."
 	},
 	"dependencies": {
 		"@types/node": "20.1.4",
@@ -23,5 +25,8 @@
 		"siwe": "^2.1.4",
 		"typescript": "5.0.4",
 		"wagmi": "^0.12.13"
+	},
+	"devDependencies": {
+		"prettier": "^2.8.8"
 	}
 }
