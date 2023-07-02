@@ -1,6 +1,6 @@
-import "./globals.css";
-import ClientLayout from "./Web3Provider";
-import { FC, PropsWithChildren } from "react";
+import './globals.css'
+import ClientLayout from './Web3Provider'
+import { FC, PropsWithChildren } from 'react'
 
 const RootLayout: FC<PropsWithChildren<{}>> = ({ children }) => {
 	return (
@@ -9,7 +9,7 @@ const RootLayout: FC<PropsWithChildren<{}>> = ({ children }) => {
 				<ClientLayout>{children}</ClientLayout>
 			</body>
 		</html>
-	);
-};
+	)
+}
 
-export default RootLayout;
+export default RootLayout
